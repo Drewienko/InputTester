@@ -9,6 +9,9 @@ CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
 
+# Prerequisites
+*.d
+
 # binaries
 *.o
 *.obj
@@ -20,10 +23,12 @@ cmake_install.cmake
 *.exe
 *.pdb
 
+# debug information files
+*.dwo
+
 # IDE
 .idea/
 .vscode/
 *.user
 *.suo
 *.VC.db
-AGENTS.md
