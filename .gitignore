@@ -1,0 +1,29 @@
+# build
+build/
+build-*/
+cmake-build*/
+out/
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+
+# binaries
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dll
+*.dylib
+*.exe
+*.pdb
+
+# IDE
+.idea/
+.vscode/
+*.user
+*.suo
+*.VC.db
+AGENTS.md
