@@ -6,6 +6,7 @@
 
 #include <QAbstractNativeEventFilter>
 #include <QCoreApplication>
+#include <QString>
 
 #include "inputtester/core/inputEvent.h"
 #include "inputtester/platform/inputBackend.h"
@@ -46,15 +47,30 @@ namespace inputTester
     public:
         winInputBackend() = default;
 
-        void start(QObject *eventSource) override
+        bool start(QObject *eventSource, QString *errorMessage) override
         {
             Q_UNUSED(eventSource)
+            stop();
             auto *app{QCoreApplication::instance()};
             if (app != nullptr)
             {
                 app->installNativeEventFilter(this);
             }
-            registerRawInputDevices();
+            else
+            {
+                if (errorMessage != nullptr)
+                {
+                    *errorMessage = "windows backend: QCoreApplication instance missing";
+                }
+                return false;
+            }
+
+            if (!registerRawInputDevices(errorMessage))
+            {
+                app->removeNativeEventFilter(this);
+                return false;
+            }
+            return true;
         }
 
         void stop() override
@@ -117,14 +133,24 @@ namespace inputTester
         }
 
     private:
-        void registerRawInputDevices()
+        bool registerRawInputDevices(QString *errorMessage)
         {
             RAWINPUTDEVICE devices[1]{};
             devices[0].usUsagePage = 0x01;
             devices[0].usUsage = 0x06;
             devices[0].dwFlags = 0;
             devices[0].hwndTarget = nullptr;
-            RegisterRawInputDevices(devices, 1, sizeof(RAWINPUTDEVICE));
+            if (!RegisterRawInputDevices(devices, 1, sizeof(RAWINPUTDEVICE)))
+            {
+                if (errorMessage != nullptr)
+                {
+                    const auto errorCode{static_cast<unsigned long>(GetLastError())};
+                    *errorMessage = QString("windows backend: RegisterRawInputDevices failed (error=%1)")
+                                        .arg(errorCode);
+                }
+                return false;
+            }
+            return true;
         }
 
         void handleRawInput(LPARAM lParam)
@@ -140,7 +166,10 @@ namespace inputTester
                 return;
             }
 
-            rawBuffer_.resize(size);
+            if (rawBuffer_.size() < size)
+            {
+                rawBuffer_.resize(size);
+            }
             if (GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, rawBuffer_.data(), &size,
                                 sizeof(RAWINPUTHEADER)) != size)
             {

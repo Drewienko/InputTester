@@ -17,10 +17,10 @@ cmake --build $buildDir --config $Configuration
 
 if ($Deploy) 
 {
-    $deployTarget = "deployQtKeyLog"
+$deployTarget = "deployInputTester"
     if ($Configuration -eq "Debug") 
     {
-        $deployTarget = "deployQtKeyLogDebug"
+    $deployTarget = "deployInputTesterDebug"
     }
     cmake --build $buildDir --config $Configuration --target $deployTarget
 }

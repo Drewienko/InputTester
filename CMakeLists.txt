@@ -10,7 +10,10 @@ find_package(Qt6 REQUIRED COMPONENTS Widgets)
 if (WIN32)
     set(inputBackendSources src/platform/win/winInputBackend.cpp)
 else()
-    set(inputBackendSources src/platform/linux/linuxInputBackend.cpp)
+    set(inputBackendSources
+        src/platform/linux/linuxInputBackend.cpp
+        src/platform/linux/linuxKeymapParser.cpp
+    )
 endif()
 
 add_library(inputBackend STATIC ${inputBackendSources})
@@ -21,31 +24,37 @@ if (WIN32)
     target_link_libraries(inputBackend PRIVATE user32)
 endif()
 
-add_executable(qtKeyLog
+add_executable(InputTester
     apps/qtKeyLog/qtKeyLog.cpp
     apps/qtKeyLog/keyboardView.cpp
     apps/qtKeyLog/layoutParser.cpp
 )
-if (NOT WIN32)
-    qt_add_resources(qtKeyLog qtKeyLogResources resources/inputtester.qrc)
-endif()
-target_link_libraries(qtKeyLog PRIVATE Qt6::Widgets inputBackend)
-set_target_properties(qtKeyLog PROPERTIES WIN32_EXECUTABLE $<CONFIG:Release>)
+qt_add_resources(inputTesterResources resources/inputtester.qrc)
+target_sources(InputTester PRIVATE ${inputTesterResources})
+target_link_libraries(InputTester PRIVATE Qt6::Widgets inputBackend)
+set_target_properties(InputTester PROPERTIES WIN32_EXECUTABLE $<CONFIG:Release>)
 
 if (WIN32)
+    target_sources(InputTester PRIVATE resources/windows/InputTester.rc)
     find_program(windeployqtPath windeployqt HINTS "${Qt6_DIR}/../../../bin" "${CMAKE_PREFIX_PATH}/bin")
     if (windeployqtPath)
-        add_custom_target(deployQtKeyLog
-            COMMAND "${windeployqtPath}" "$<TARGET_FILE:qtKeyLog>"
-            DEPENDS qtKeyLog
+        add_custom_target(deployInputTester
+            COMMAND "${windeployqtPath}" "$<TARGET_FILE:InputTester>"
+            DEPENDS InputTester
         )
-        add_custom_target(deployQtKeyLogDebug
-            COMMAND "${windeployqtPath}" --debug "$<TARGET_FILE:qtKeyLog>"
-            DEPENDS qtKeyLog
+        add_custom_target(deployInputTesterDebug
+            COMMAND "${windeployqtPath}" --debug "$<TARGET_FILE:InputTester>"
+            DEPENDS InputTester
         )
     else()
         message(WARNING "windeployqt not found")
     endif()
+endif()
+
+if (UNIX AND NOT APPLE)
+    install(TARGETS InputTester RUNTIME DESTINATION bin)
+    install(FILES assets/icons/InputTester.png DESTINATION share/icons/hicolor/256x256/apps)
+    install(FILES resources/linux/InputTester.desktop DESTINATION share/applications)
 endif()
 
 include(CTest)
@@ -60,4 +69,14 @@ if (BUILD_TESTING)
     set_target_properties(layoutParserTests PROPERTIES AUTOMOC ON)
     target_link_libraries(layoutParserTests PRIVATE Qt6::Test Qt6::Core)
     add_test(NAME layoutParserTests COMMAND layoutParserTests)
+
+    add_executable(linuxKeymapTests
+        tests/linuxKeymapTests.cpp
+        src/platform/linux/linuxKeymapParser.cpp
+    )
+    target_include_directories(linuxKeymapTests PRIVATE src/platform/linux)
+    target_compile_definitions(linuxKeymapTests PRIVATE INPUTTESTER_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+    set_target_properties(linuxKeymapTests PROPERTIES AUTOMOC ON)
+    target_link_libraries(linuxKeymapTests PRIVATE Qt6::Test Qt6::Core)
+    add_test(NAME linuxKeymapTests COMMAND linuxKeymapTests)
 endif()

@@ -7,6 +7,7 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QHBoxLayout>
+#include <QIcon>
 #include <QLabel>
 #include <QPlainTextEdit>
 #include <QDebug>
@@ -69,12 +70,22 @@ public:
 
         backend = inputTester::createInputBackend();
         backend->setSink(&eventQueue);
-        backend->start(this);
+        QString backendError{};
+        const bool backendStarted{backend->start(this, &backendError)};
 
         eventTimer = new QTimer{this};
         eventTimer->setInterval(16);
         QObject::connect(eventTimer, &QTimer::timeout, this, &keyLogWindow::drainEvents);
-        eventTimer->start();
+        if (backendStarted)
+        {
+            eventTimer->start();
+        }
+        else
+        {
+            const auto message{backendError.isEmpty() ? QString{"input backend failed to start"} : backendError};
+            infoLabel->setText(QString("input: %1").arg(message));
+            QMessageBox::critical(this, "Input backend error", message);
+        }
 
         QObject::connect(modeCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
                          [this](int index)
@@ -318,6 +329,7 @@ int main(int argc, char **argv)
     QApplication app{argc, argv};
     QCoreApplication::setOrganizationName("InputTester");
     QCoreApplication::setApplicationName("InputTester");
+    app.setWindowIcon(QIcon{":/inputtester/icons/InputTester.png"});
 
     keyLogWindow window{};
     window.show();

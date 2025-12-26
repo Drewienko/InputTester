@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="/inputtester">
     <file>linux_keymap.json</file>
+    <file alias="icons/InputTester.png">../assets/icons/InputTester.png</file>
   </qresource>
 </RCC>

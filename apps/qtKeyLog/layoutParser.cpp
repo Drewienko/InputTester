@@ -110,14 +110,9 @@ namespace
         {
             return false;
         }
-        for (const auto &item : array)
-        {
-            if (!item.isString())
-            {
-                return false;
-            }
-        }
-        return true;
+        return std::all_of(array.begin(), array.end(),
+                           [](const QJsonValue &item)
+                           { return item.isString(); });
     }
 
     QString valueTypeName(const QJsonValue &value)

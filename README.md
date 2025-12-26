@@ -45,20 +45,20 @@ cmake --build --preset windows-release
 ```
 
 Run:
-`build-win/Release/qtKeyLog.exe`
+`build-win/Release/InputTester.exe`
 
 Note: Release builds use the Windows GUI subsystem (no console window). Debug keeps the console.
 
 Deploy (Release):
 
 ```powershell
-cmake --build build-win --config Release --target deployQtKeyLog
+cmake --build build-win --config Release --target deployInputTester
 ```
 
 Deploy (Debug):
 
 ```powershell
-cmake --build build-win --config Debug --target deployQtKeyLogDebug
+cmake --build build-win --config Debug --target deployInputTesterDebug
 ```
 
 ## Build (Linux / Ubuntu 22.04)
@@ -67,7 +67,7 @@ cmake --build build-win --config Debug --target deployQtKeyLogDebug
 export QT_PREFIX_PATH="$HOME/Qt/6.10.1/gcc_64"
 cmake --preset linux-release
 cmake --build --preset linux-release
-./build-linux-release/qtKeyLog
+./build-linux-release/InputTester
 ```
 
 Note: keep separate build directories for Windows and Linux (build-win vs build-linux-\*).

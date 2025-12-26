@@ -3,6 +3,8 @@
 
 #include <memory>
 
+#include <QString>
+
 #include "inputtester/core/inputEventSink.h"
 
 class QObject;
@@ -14,7 +16,7 @@ namespace inputTester
     {
     public:
         virtual ~inputBackend() = default;
-        virtual void start(QObject *eventSource) = 0;
+        virtual bool start(QObject *eventSource, QString *errorMessage) = 0;
         virtual void stop() = 0;
         virtual void setSink(inputEventSink *sink) = 0;
     };

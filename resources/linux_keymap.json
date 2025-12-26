@@ -1,5 +1,6 @@
 {
   "version": 1,
+  "nativeScanCodeOffset": 8,
   "qtKeyToVirtualKey": [
     { "qtKey": "Key_0", "virtualKey": 48 },
     { "qtKey": "Key_1", "virtualKey": 49 },

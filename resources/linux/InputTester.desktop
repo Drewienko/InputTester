@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=InputTester
+Comment=Input capture tester
+Exec=InputTester
+Icon=InputTester
+Type=Application
+Categories=Utility;Development;
+Terminal=false
