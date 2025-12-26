@@ -3,51 +3,100 @@
 Cross-platform input capture playground (C++20 + Qt 6).
 Focus: start with Qt input experiments, then move lower (WinAPI).
 
-## Goals
+## Project Goals
 
-- Separate core event model from platform backends.
-- Support capture modes: global and focus-only.
-- Keep event pipeline zero-allocation on hot path.
-- Start with keyboard/mouse; gamepad later.
+- Understand the difference between `virtualKey` and `scanCode` and how they affect keyboard mapping.
+- Build a portable event pipeline: platform backend -> queue -> UI, with zero allocations on the hot path.
+- Separate keyboard geometry (KLE) from input code mapping.
+- Start with keyboard/mouse, gamepad later.
 
 ## Status
 
 Qt Widgets window with platform backends and keyboard view.
 
+## Screenshots
+
+Windows: `screenshots/windows.png`  
+WSL: `screenshots/wsl.png`
+
+## Event Flow
+
+```
+platform backend -> inputEventSink -> inputEventQueue (SPSC) -> UI timer -> keyboardView
+```
+
+Why SPSC? The backend is a single producer and the UI thread is a single consumer, so a lock-free ring buffer
+keeps allocations and locks off the hot path.
+
 ## Requirements
 
 - CMake 3.28+
 - Qt 6.10.1 (Windows: msvc2022_64, Linux: gcc_64)
+- `QT_PREFIX_PATH` env var pointing at the Qt install prefix
 
 ## Build (Windows, MSVC 2022)
 
 ```powershell
-cmake -S . -B build-win -G "Visual Studio 17 2022" -A x64 -DCMAKE_PREFIX_PATH="C:/Qt/6.10.1/msvc2022_64"
-cmake --build build-win --config Release
+$env:QT_PREFIX_PATH="C:/Qt/6.10.1/msvc2022_64"
+cmake --preset windows
+cmake --build --preset windows-release
 ```
 
 Run:
 `build-win/Release/qtKeyLog.exe`
 
+Note: Release builds use the Windows GUI subsystem (no console window). Debug keeps the console.
+
 Deploy (Release):
+
 ```powershell
 cmake --build build-win --config Release --target deployQtKeyLog
 ```
 
 Deploy (Debug):
+
 ```powershell
 cmake --build build-win --config Debug --target deployQtKeyLogDebug
 ```
 
-## Build (WSL / Ubuntu 22.04)
+## Build (Linux / Ubuntu 22.04)
 
 ```bash
-cmake -S . -B build-wsl -G Ninja -DCMAKE_PREFIX_PATH="$HOME/Qt/6.10.1/gcc_64"
-cmake --build build-wsl
-./build-wsl/qtKeyLog
+export QT_PREFIX_PATH="$HOME/Qt/6.10.1/gcc_64"
+cmake --preset linux-release
+cmake --build --preset linux-release
+./build-linux-release/qtKeyLog
 ```
 
-Note: always keep separate build directories for Windows and WSL (build-win vs build-wsl).
+Note: keep separate build directories for Windows and Linux (build-win vs build-linux-\*).
+
+## One-Click Build
+
+Linux:
+
+```bash
+./scripts/build-linux.sh Release
+```
+
+Windows:
+
+```powershell
+.\scripts\build-win.ps1 -Configuration Release -Deploy
+```
+
+Windows (preset deploy):
+
+```powershell
+cmake --build --preset windows-release-deploy
+```
+
+## Tests
+
+```bash
+cmake --preset linux-debug
+cmake --build --preset linux-debug
+ctest --preset linux-debug
+```
 
 ## Layout Import (KLE + Mapping)
 
@@ -55,12 +104,14 @@ Geometry uses KLE JSON (Keyboard Layout Editor). Mapping is a separate JSON file
 virtualKey/scanCode by key index (order of keys in the KLE file).
 
 Sample files:
+
 - `layouts/ansi_tkl/ansi_tkl_kle.json`
 - `layouts/ansi_tkl/ansi_tkl_mapping.json`
 - `layouts/ansi_full/ansi_full_kle.json`
 - `layouts/ansi_full/ansi_full_mapping.json`
 
 Mapping format:
+
 ```json
 {
   "keys": [
@@ -70,5 +121,6 @@ Mapping format:
 }
 ```
 
-At least one of `virtualKey` or `scanCode` must be present per key. Index must match the KLE order.
+Both `virtualKey` and `scanCode` must be present per key. Index must match the KLE order.
+Fn does not emit key codes, so its entry should be `virtualKey: 0` and `scanCode: 0` (it will not highlight).
 For extended keys (arrows, Insert/Delete, numpad /, right Ctrl/Alt), use `scanCode + 256` in mapping.

@@ -86,6 +86,7 @@
     { "index": 78, "virtualKey": 18, "scanCode": 56 },
     { "index": 79, "virtualKey": 32, "scanCode": 57 },
     { "index": 80, "virtualKey": 18, "scanCode": 312 },
+    { "index": 81, "virtualKey": 0, "scanCode": 0 },
     { "index": 82, "virtualKey": 93, "scanCode": 349 },
     { "index": 83, "virtualKey": 17, "scanCode": 285 },
     { "index": 84, "virtualKey": 37, "scanCode": 331 },

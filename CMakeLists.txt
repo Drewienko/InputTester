@@ -24,8 +24,13 @@ endif()
 add_executable(qtKeyLog
     apps/qtKeyLog/qtKeyLog.cpp
     apps/qtKeyLog/keyboardView.cpp
+    apps/qtKeyLog/layoutParser.cpp
 )
+if (NOT WIN32)
+    qt_add_resources(qtKeyLog qtKeyLogResources resources/inputtester.qrc)
+endif()
 target_link_libraries(qtKeyLog PRIVATE Qt6::Widgets inputBackend)
+set_target_properties(qtKeyLog PROPERTIES WIN32_EXECUTABLE $<CONFIG:Release>)
 
 if (WIN32)
     find_program(windeployqtPath windeployqt HINTS "${Qt6_DIR}/../../../bin" "${CMAKE_PREFIX_PATH}/bin")
@@ -41,4 +46,18 @@ if (WIN32)
     else()
         message(WARNING "windeployqt not found")
     endif()
+endif()
+
+include(CTest)
+if (BUILD_TESTING)
+    find_package(Qt6 REQUIRED COMPONENTS Test)
+    add_executable(layoutParserTests
+        tests/layoutParserTests.cpp
+        apps/qtKeyLog/layoutParser.cpp
+    )
+    target_include_directories(layoutParserTests PRIVATE apps/qtKeyLog)
+    target_compile_definitions(layoutParserTests PRIVATE INPUTTESTER_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+    set_target_properties(layoutParserTests PROPERTIES AUTOMOC ON)
+    target_link_libraries(layoutParserTests PRIVATE Qt6::Test Qt6::Core)
+    add_test(NAME layoutParserTests COMMAND layoutParserTests)
 endif()

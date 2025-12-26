@@ -11,29 +11,33 @@
 
 #include "inputtester/core/inputEvent.h"
 
-class keyboardView final : public QWidget {
+class keyboardView final : public QWidget
+{
 public:
-    enum class keyIdMode {
+    enum class keyIdMode
+    {
         virtualKey,
         scanCode,
     };
 
-    explicit keyboardView(QWidget* parent = nullptr);
+    explicit keyboardView(QWidget *parent = nullptr);
 
     void setKeyIdMode(keyIdMode mode);
     keyIdMode getKeyIdMode() const;
+    void resetPressedKeys();
 
-    bool loadLayoutFromFiles(const QString& geometryPath, const QString& mappingPath, QString* errorMessage);
+    bool loadLayoutFromFiles(const QString &geometryPath, const QString &mappingPath, QString *errorMessage);
 
-    void handleInputEvent(const inputTester::inputEvent& event);
+    void handleInputEvent(const inputTester::inputEvent &event);
 
     QSize sizeHint() const override;
 
 protected:
-    void paintEvent(QPaintEvent* event) override;
+    void paintEvent(QPaintEvent *event) override;
 
 private:
-    struct keyDefinition {
+    struct keyDefinition
+    {
         QString label{};
         QRectF unitRect{};
         std::uint32_t virtualKey{};
@@ -42,13 +46,12 @@ private:
 
     void recalculateBounds();
     void addKeyAt(qreal x, qreal y, qreal widthUnits, qreal heightUnits,
-                  const QString& label, std::uint32_t virtualKey, std::uint32_t scanCode);
-    bool loadKleGeometry(const QString& geometryPath, QString* errorMessage);
-    bool applyMapping(const QString& mappingPath, QString* errorMessage);
+                  const QString &label, std::uint32_t virtualKey, std::uint32_t scanCode);
+    bool loadKleGeometry(const QString &geometryPath, QString *errorMessage);
+    bool applyMapping(const QString &mappingPath, QString *errorMessage);
 
-    bool isPressed(const keyDefinition& key) const;
-    std::uint32_t keyIdForEvent(const inputTester::inputEvent& event) const;
-
+    bool isPressed(const keyDefinition &key) const;
+    std::uint32_t keyIdForEvent(const inputTester::inputEvent &event) const;
     std::vector<keyDefinition> keys{};
     std::unordered_set<std::uint32_t> pressedKeys{};
 

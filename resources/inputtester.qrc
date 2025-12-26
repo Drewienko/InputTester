@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="/inputtester">
+    <file>linux_keymap.json</file>
+  </qresource>
+</RCC>

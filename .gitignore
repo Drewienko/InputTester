@@ -33,3 +33,4 @@ cmake_install.cmake
 *.suo
 *.VC.db
 AGENTS.md
+NOTES.md

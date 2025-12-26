@@ -1,0 +1,83 @@
+{
+  "version": 4,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 28,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "linux-debug",
+      "displayName": "Linux Debug",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-linux-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_PREFIX_PATH": "$env{QT_PREFIX_PATH}"
+      }
+    },
+    {
+      "name": "linux-release",
+      "displayName": "Linux Release",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-linux-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_PREFIX_PATH": "$env{QT_PREFIX_PATH}"
+      }
+    },
+    {
+      "name": "windows",
+      "displayName": "Windows (Visual Studio 2022)",
+      "generator": "Visual Studio 17 2022",
+      "binaryDir": "${sourceDir}/build-win",
+      "architecture": "x64",
+      "cacheVariables": {
+        "CMAKE_PREFIX_PATH": "$env{QT_PREFIX_PATH}"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "linux-debug",
+      "configurePreset": "linux-debug"
+    },
+    {
+      "name": "linux-release",
+      "configurePreset": "linux-release"
+    },
+    {
+      "name": "windows-debug",
+      "configurePreset": "windows",
+      "configuration": "Debug"
+    },
+    {
+      "name": "windows-release",
+      "configurePreset": "windows",
+      "configuration": "Release"
+    },
+    {
+      "name": "windows-release-deploy",
+      "configurePreset": "windows",
+      "configuration": "Release",
+      "targets": ["deployQtKeyLog"]
+    },
+    {
+      "name": "windows-debug-deploy",
+      "configurePreset": "windows",
+      "configuration": "Debug",
+      "targets": ["deployQtKeyLogDebug"]
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "linux-debug",
+      "configurePreset": "linux-debug"
+    },
+    {
+      "name": "windows-debug",
+      "configurePreset": "windows",
+      "configuration": "Debug"
+    }
+  ]
+}
