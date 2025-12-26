@@ -12,12 +12,14 @@ Focus: start with Qt input experiments, then move lower (WinAPI).
 
 ## Status
 
-Qt Widgets window with platform backends and keyboard view.
+- The app opens a Qt window and draws a full keyboard; pressed keys highlight in the UI.
+- Input capture is focus-only and works on Windows and Linux (Wayland).
+- Keyboard layouts are loaded from KLE JSON + mapping JSON, with clear error messages if files are invalid.
 
 ## Screenshots
 
-Windows: `screenshots/windows.png`  
-WSL: `screenshots/wsl.png`
+![Windows](screenshots/windows.png)
+![WSL](screenshots/wsl.png)
 
 ## Event Flow
 
