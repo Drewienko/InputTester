@@ -8,26 +8,26 @@
 #include <QByteArray>
 #include <QString>
 
-namespace linuxKeymapParser
+namespace LinuxKeymapParser
 {
 
-    struct scanTranslation
-    {
-        std::uint32_t scanCode{};
-        bool isExtended{};
-    };
+struct ScanTranslation
+{
+    std::uint32_t scanCode{};
+    bool isExtended{};
+};
 
-    struct linuxKeyMap
-    {
-        std::unordered_map<std::uint64_t, std::uint32_t> qtKeyToVirtualKey{};
-        std::unordered_map<std::uint32_t, scanTranslation> linuxScanToWinScan{};
-        std::uint32_t nativeScanCodeOffset{};
-    };
+struct LinuxKeyMap
+{
+    std::unordered_map<std::uint64_t, std::uint32_t> qtKeyToVirtualKey;
+    std::unordered_map<std::uint32_t, ScanTranslation> linuxScanToWinScan;
+    std::uint32_t nativeScanCodeOffset{};
+};
 
-    std::uint64_t makeQtKeyMapKey(int qtKey, bool keypad);
-    bool parseLinuxKeyMap(const QByteArray &data, linuxKeyMap *outMap, std::vector<QString> *errors);
-    QString formatErrors(const std::vector<QString> &errors);
+std::uint64_t makeQtKeyMapKey(int qtKey, bool keypad);
+bool parseLinuxKeyMap(const QByteArray& data, LinuxKeyMap* outMap, std::vector<QString>* errors);
+QString formatErrors(const std::vector<QString>& errors);
 
-} // namespace linuxKeymapParser
+} // namespace LinuxKeymapParser
 
 #endif // inputTesterPlatformLinuxKeymapParserH

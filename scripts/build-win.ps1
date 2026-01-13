@@ -1,26 +1,23 @@
 param(
     [ValidateSet("Debug", "Release")]
     [string]$Configuration = "Release",
-    [switch]$Deploy
+    [switch]$Deploy,
+    [string]$QtPrefix
 )
 
-$qtPrefixPath = $env:QT_PREFIX_PATH
-if ([string]::IsNullOrWhiteSpace($qtPrefixPath)) 
-{
-    $qtPrefixPath = "C:\Qt\6.10.1\msvc2022_64"
+$preset = "windows-release-msvc"
+if ($Configuration -eq "Debug") {
+    $preset = "windows-debug-msvc"
 }
 
-$buildDir = "build-win-$Configuration"
+$qtPrefixValue = if ($QtPrefix) { $QtPrefix } elseif ($env:QT6_PREFIX) { $env:QT6_PREFIX } else { "C:/Qt/6.10.1/msvc2022_64" }
+$env:QT6_PREFIX = $qtPrefixValue
 
-cmake -S . -B $buildDir -G "Visual Studio 17 2022" -A x64 -DCMAKE_PREFIX_PATH="$qtPrefixPath"
-cmake --build $buildDir --config $Configuration
+cmake --preset $preset
+cmake --build --preset $preset
 
 if ($Deploy) 
 {
-$deployTarget = "deployInputTester"
-    if ($Configuration -eq "Debug") 
-    {
-    $deployTarget = "deployInputTesterDebug"
-    }
-    cmake --build $buildDir --config $Configuration --target $deployTarget
+    $deployPreset = "$preset-deploy"
+    cmake --build --preset $deployPreset
 }

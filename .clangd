@@ -1,0 +1,16 @@
+CompileFlags:
+  CompilationDatabase: .
+  Add:
+    - "-std=c++20"
+    - "-Wall"
+  Remove:
+    - "-fpreleveled-symbols"
+    - "-fno-canonical-system-headers"
+    - "-fmodules-ts"
+    - "-fmodule-mapper=*"
+    - "-fdeps-format=*"
+
+Diagnostics:
+  Suppress:
+    - drv_unknown_argument
+    - pp_file_not_found

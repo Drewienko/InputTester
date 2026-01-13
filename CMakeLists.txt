@@ -34,6 +34,12 @@ target_sources(InputTester PRIVATE ${inputTesterResources})
 target_link_libraries(InputTester PRIVATE Qt6::Widgets inputBackend)
 set_target_properties(InputTester PROPERTIES WIN32_EXECUTABLE $<CONFIG:Release>)
 
+add_custom_command(TARGET InputTester POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/layouts
+    $<TARGET_FILE_DIR:InputTester>/layouts
+)
+
 if (WIN32)
     target_sources(InputTester PRIVATE resources/windows/InputTester.rc)
     find_program(windeployqtPath windeployqt HINTS "${Qt6_DIR}/../../../bin" "${CMAKE_PREFIX_PATH}/bin")

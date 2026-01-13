@@ -12,65 +12,65 @@ Focus: start with Qt input experiments, then move lower (WinAPI).
 
 ## Status
 
-- The app opens a Qt window and draws a full keyboard; pressed keys highlight in the UI.
+- The app opens a Qt window and draws a full keyboard.
+- **Visual Feedback**: Pressed keys light up red. Tested keys (pressed at least once) turn teal.
+- **Metrics**: Real-time display of Polling Rate (Hz) and NKRO (Max simultaneous keys).
 - Input capture is focus-only and works on Windows and Linux (Wayland).
-- Keyboard layouts are loaded from KLE JSON + mapping JSON, with clear error messages if files are invalid.
+- Keyboard layouts are loaded from KLE JSON. Mapping JSON is optional (auto-mapping based on labels).
 
 ## Screenshots
 
+![▶ Click to play showcase GIF](screenshots/wsl-showcase.gif)
 ![Windows](screenshots/windows.png)
 ![WSL](screenshots/wsl.png)
+![Ergonomic Layout](screenshots/ergonomic.png)
 
 ## Event Flow
 
-```
 platform backend -> inputEventSink -> inputEventQueue (SPSC) -> UI timer -> keyboardView
-```
 
-Why SPSC? The backend is a single producer and the UI thread is a single consumer, so a lock-free ring buffer
-keeps allocations and locks off the hot path.
+Why SPSC? The backend is a single producer and the UI thread is a single consumer, so a lock-free ring buffer keeps allocations and locks off the hot path.
 
 ## Requirements
 
 - CMake 3.28+
 - Qt 6.10.1 (Windows: msvc2022_64, Linux: gcc_64)
-- `QT_PREFIX_PATH` env var pointing at the Qt install prefix
+- Set your Qt path with `QT6_PREFIX` (presets read it; helper scripts export it).
 
 ## Build (Windows, MSVC 2022)
 
 ```powershell
-$env:QT_PREFIX_PATH="C:/Qt/6.10.1/msvc2022_64"
-cmake --preset windows
-cmake --build --preset windows-release
+$env:QT6_PREFIX="C:/Qt/6.10.1/msvc2022_64"
+cmake --preset windows-release-msvc
+cmake --build --preset windows-release-msvc
 ```
 
 Run:
-`build-win/Release/InputTester.exe`
+`out/build/windows-release-msvc/Release/InputTester.exe`
 
 Note: Release builds use the Windows GUI subsystem (no console window). Debug keeps the console.
 
 Deploy (Release):
 
 ```powershell
-cmake --build build-win --config Release --target deployInputTester
+cmake --build --preset windows-release-msvc-deploy
 ```
 
 Deploy (Debug):
 
 ```powershell
-cmake --build build-win --config Debug --target deployInputTesterDebug
+cmake --build --preset windows-debug-msvc-deploy
 ```
 
 ## Build (Linux / Ubuntu 22.04)
 
 ```bash
-export QT_PREFIX_PATH="$HOME/Qt/6.10.1/gcc_64"
-cmake --preset linux-release
-cmake --build --preset linux-release
-./build-linux-release/InputTester
+export QT6_PREFIX="$HOME/Qt/6.10.1/gcc_64"
+cmake --preset linux-release-gcc
+cmake --build --preset linux-release-gcc
+./out/build/linux-release-gcc/InputTester
 ```
 
-Note: keep separate build directories for Windows and Linux (build-win vs build-linux-\*).
 
 ## One-Click Build
 
@@ -89,21 +89,24 @@ Windows:
 Windows (preset deploy):
 
 ```powershell
-cmake --build --preset windows-release-deploy
+cmake --build --preset windows-release-msvc-deploy
 ```
 
 ## Tests
 
 ```bash
-cmake --preset linux-debug
-cmake --build --preset linux-debug
-ctest --preset linux-debug
+export QT6_PREFIX="$HOME/Qt/6.10.1/gcc_64"
+cmake --preset linux-debug-gcc
+cmake --build --preset linux-debug-gcc
+ctest --preset linux-debug-gcc
 ```
 
 ## Layout Import (KLE + Mapping)
 
-Geometry uses KLE JSON (Keyboard Layout Editor). Mapping is a separate JSON file that assigns
-virtualKey/scanCode by key index (order of keys in the KLE file).
+Geometry uses KLE JSON (Keyboard Layout Editor).
+
+**Auto-Mapping**: If no mapping file is provided, the app attempts to map keys based on their labels (e.g., "Q", "Enter").
+**Manual Mapping**: You can provide a separate JSON file to assign `virtualKey`/`scanCode` by key index.
 
 Sample files:
 

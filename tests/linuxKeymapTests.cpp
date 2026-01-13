@@ -10,17 +10,17 @@
 namespace
 {
 
-    bool containsError(const std::vector<QString> &errors, const QString &needle)
+bool containsError(const std::vector<QString>& errors, const QString& needle)
+{
+    for (const auto& error : errors)
     {
-        for (const auto &error : errors)
+        if (error.contains(needle))
         {
-            if (error.contains(needle))
-            {
-                return true;
-            }
+            return true;
         }
-        return false;
     }
+    return false;
+}
 
 } // namespace
 
@@ -35,26 +35,27 @@ private slots:
 
 void linuxKeymapTests::linuxKeymapJsonIsValid()
 {
-    const QString root{QString::fromUtf8(INPUTTESTER_SOURCE_DIR)};
-    const auto path{QDir{root}.filePath("resources/linux_keymap.json")};
+    const QString root{ QString::fromUtf8(INPUTTESTER_SOURCE_DIR) };
+    const auto path{ QDir{ root }.filePath("resources/linux_keymap.json") };
 
-    QFile file{path};
+    QFile file{ path };
     QVERIFY2(file.open(QIODevice::ReadOnly), qPrintable(QString("unable to open %1").arg(path)));
 
     std::vector<QString> errors{};
-    linuxKeymapParser::linuxKeyMap map{};
-    const bool ok{linuxKeymapParser::parseLinuxKeyMap(file.readAll(), &map, &errors)};
-    QVERIFY2(ok, qPrintable(linuxKeymapParser::formatErrors(errors)));
+    LinuxKeymapParser::LinuxKeyMap map{};
+    const bool ok{ LinuxKeymapParser::parseLinuxKeyMap(file.readAll(), &map, &errors) };
+    QVERIFY2(ok, qPrintable(LinuxKeymapParser::formatErrors(errors)));
 }
 
 void linuxKeymapTests::linuxKeymapJsonRejectsInvalid()
 {
     const QByteArray invalidData{
-        R"json({ "nativeScanCodeOffset": 8, "qtKeyToVirtualKey": [], "linuxScanToWinScan": [] })json"};
+        R"json({ "nativeScanCodeOffset": 8, "qtKeyToVirtualKey": [], "linuxScanToWinScan": [] })json"
+    };
 
     std::vector<QString> errors{};
-    linuxKeymapParser::linuxKeyMap map{};
-    const bool ok{linuxKeymapParser::parseLinuxKeyMap(invalidData, &map, &errors)};
+    LinuxKeymapParser::LinuxKeyMap map{};
+    const bool ok{ LinuxKeymapParser::parseLinuxKeyMap(invalidData, &map, &errors) };
     QVERIFY(!ok);
     QVERIFY(!errors.empty());
     QVERIFY(containsError(errors, "qtKeyToVirtualKey"));

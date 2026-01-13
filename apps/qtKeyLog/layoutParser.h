@@ -9,26 +9,28 @@
 #include <QRectF>
 #include <QString>
 
-namespace layoutParser
+namespace LayoutParser
 {
 
-    struct geometryKey
-    {
-        QString label{};
-        QRectF rect{};
-    };
+struct GeometryKey
+{
+    QString label;
+    QRectF rect;
+    qreal rotation{};
+    qreal rx{};
+    qreal ry{};
+};
 
-    struct mappingEntry
-    {
-        std::uint32_t virtualKey{};
-        std::uint32_t scanCode{};
-    };
+struct MappingEntry
+{
+    std::uint32_t virtualKey{};
+    std::uint32_t scanCode{};
+};
 
-    bool parseKleGeometry(const QByteArray &data, std::vector<geometryKey> *outKeys,
-                          std::vector<QString> *errors);
-    bool parseMapping(const QByteArray &data, std::size_t keyCount, std::vector<mappingEntry> *outEntries,
-                      std::vector<QString> *errors);
+bool parseKleGeometry(const QByteArray& data, std::vector<GeometryKey>* outKeys, std::vector<QString>* errors);
+bool parseMapping(const QByteArray& data, std::size_t keyCount, std::vector<MappingEntry>* outEntries,
+                  std::vector<QString>* errors);
 
-} // namespace layoutParser
+} // namespace LayoutParser
 
 #endif // inputTesterAppsLayoutParserH

@@ -1,10 +1,20 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-buildType="${1:-Release}"
-qtPrefixPath="${QT_PREFIX_PATH:-$HOME/Qt/6.10.1/gcc_64}"
+config="${1:-Release}"
+config_lower="$(echo "$config" | tr '[:upper:]' '[:lower:]')"
 
-buildDir="build-linux-$(echo "$buildType" | tr '[:upper:]' '[:lower:]')"
+case "$config_lower" in
+  debug) preset="linux-debug-gcc" ;;
+  release) preset="linux-release-gcc" ;;
+  *)
+    echo "Usage: $0 [Debug|Release]" >&2
+    exit 1
+    ;;
+esac
 
-cmake -S . -B "$buildDir" -G Ninja -DCMAKE_BUILD_TYPE="$buildType" -DCMAKE_PREFIX_PATH="$qtPrefixPath"
-cmake --build "$buildDir"
+qt_prefix="${QT6_PREFIX:-$HOME/Qt/6.10.1/gcc_64}"
+export QT6_PREFIX="$qt_prefix"
+
+cmake --preset "$preset"
+cmake --build --preset "$preset"
