@@ -7,22 +7,22 @@
 namespace inputTester
 {
 
-    class inputEventQueue final : public inputEventSink
+class inputEventQueue final : public inputEventSink
+{
+public:
+    void onInputEvent(const inputEvent& event) override
     {
-    public:
-        void onInputEvent(const inputEvent &event) override
-        {
-            queue_.tryPush(event);
-        }
+        queue_.tryPush(event);
+    }
 
-        bool tryPop(inputEvent &out)
-        {
-            return queue_.tryPop(out);
-        }
+    bool tryPop(inputEvent& out)
+    {
+        return queue_.tryPop(out);
+    }
 
-    private:
-        spscRingBuffer<inputEvent, 1024> queue_{};
-    };
+private:
+    spscRingBuffer<inputEvent, 1024> queue_{};
+};
 
 } // namespace inputTester
 

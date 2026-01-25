@@ -12,16 +12,16 @@ class QObject;
 namespace inputTester
 {
 
-    class inputBackend
-    {
-    public:
-        virtual ~inputBackend() = default;
-        virtual bool start(QObject *eventSource, QString *errorMessage) = 0;
-        virtual void stop() = 0;
-        virtual void setSink(inputEventSink *sink) = 0;
-    };
+class inputBackend
+{
+public:
+    virtual ~inputBackend() = default;
+    virtual bool start(QObject* eventSource, QString* errorMessage) = 0;
+    virtual void stop() = 0;
+    virtual void setSink(inputEventSink* sink) = 0;
+};
 
-    std::unique_ptr<inputBackend> createInputBackend();
+std::unique_ptr<inputBackend> createInputBackend();
 
 } // namespace inputTester
 

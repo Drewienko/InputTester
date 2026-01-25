@@ -3,6 +3,8 @@ CompileFlags:
   Add:
     - "-std=c++20"
     - "-Wall"
+    - "-Iinclude"
+    - "-Itests"
   Remove:
     - "-fpreleveled-symbols"
     - "-fno-canonical-system-headers"

@@ -101,6 +101,29 @@ cmake --build --preset linux-debug-gcc
 ctest --preset linux-debug-gcc
 ```
 
+## Benchmarks (Linux)
+
+This repo includes a small SPSC ringbuffer microbenchmark (`tests/spscBench.cpp`) adapted from the CppCon 2023 material by Charles Frasch.
+
+Build and run:
+
+```bash
+cmake --preset linux-release-gcc -DINPUTTESTER_BUILD_BENCHMARKS=ON
+cmake --build --preset linux-release-gcc --target spscBench
+./out/build/linux-release-gcc/spscBench --benchmark_min_time=0.2s --benchmark_repetitions=3
+```
+
+The benchmark includes:
+
+- `bmSpscRingBuffer`: tight-loop throughput-ish push/pop.
+- `bmSpscMouseRateDrain`: models an input backend producing at N Hz and a UI draining every M ms; reports drop rate and event age (`p50_age_ns`, `p99_age_ns`).
+
+Example (8 kHz, UI drain every 16 ms, run for 2 s):
+
+```bash
+./out/build/linux-release-gcc/spscBench --benchmark_filter=bmSpscMouseRateDrain/8000/16/2000 --benchmark_min_time=0.01s
+```
+
 ## Layout Import (KLE + Mapping)
 
 Geometry uses KLE JSON (Keyboard Layout Editor).

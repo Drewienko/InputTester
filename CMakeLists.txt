@@ -86,3 +86,30 @@ if (BUILD_TESTING)
     target_link_libraries(linuxKeymapTests PRIVATE Qt6::Test Qt6::Core)
     add_test(NAME linuxKeymapTests COMMAND linuxKeymapTests)
 endif()
+
+option(INPUTTESTER_BUILD_BENCHMARKS "Build microbenchmarks" OFF)
+if (INPUTTESTER_BUILD_BENCHMARKS)
+    if (UNIX AND NOT APPLE)
+        find_package(Threads REQUIRED)
+
+        find_package(benchmark CONFIG QUIET)
+        if (NOT benchmark_FOUND)
+            find_package(benchmark QUIET)
+        endif()
+        if (NOT benchmark_FOUND OR NOT TARGET benchmark::benchmark)
+            message(FATAL_ERROR
+                "Google Benchmark not found. Install it (e.g. Ubuntu: sudo apt-get install libbenchmark-dev) "
+                "or disable INPUTTESTER_BUILD_BENCHMARKS."
+            )
+        endif()
+
+        add_executable(spscBench
+            tests/spscBench.cpp
+        )
+        target_include_directories(spscBench PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/include
+            ${CMAKE_CURRENT_SOURCE_DIR}/tests
+        )
+        target_link_libraries(spscBench PRIVATE benchmark::benchmark Threads::Threads)
+    endif()
+endif()
